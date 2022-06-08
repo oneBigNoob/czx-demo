@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.caozx.ware.mapper.StockDetailMapper">
+
+    <resultMap type="cc.caozx.ware.entity.StockDetail" id="stockDetailMap">
+        <result property="id" column="id"/>
+        <result property="skuNo" column="sku_no"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="batchNo" column="batch_no"/>
+        <result property="qty" column="qty"/>
+        <result property="lockedQty" column="locked_qty"/>
+        <result property="price" column="price"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+    <update id="updateBatch">
+        UPDATE wms_stock_detail sd
+        SET sd.locked_qty = CASE sd.id
+        <foreach collection="detailList" item="item" index="index" separator="  ">
+            WHEN #{item.id} THEN sd.locked_qty + #{item.lockedQty}
+        </foreach>
+        END
+        WHERE sd.id IN
+        <foreach collection="detailList" item="item" index="index" open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+    </update>
+    <!--    <update id="updateBatch">-->
+    <!--        UPDATE wms_stock_detail sd-->
+    <!--        SET sd.locked_qty = CASE sd.id-->
+    <!--        <foreach collection="detailList" item="detail" separator="\n">-->
+    <!--            WHEN #{detail.id} THEN locked_qty + #{detail.lockedQty}-->
+    <!--        </foreach>-->
+    <!--        END-->
+    <!--        WHERE id in-->
+    <!--        <foreach collection="detailList" item="detail" open="(" separator="," close=")">-->
+    <!--            #{detail.id}-->
+    <!--        </foreach>-->
+    <!--        AND 0 NOT IN (select ta.flag-->
+    <!--        from (-->
+    <!--        select CASE a.id-->
+    <!--        <foreach collection="detailList" item="detail" separator="\n">-->
+    <!--            WHEN #{detail.id}-->
+    <!--            THEN (a.qty - a.locked_qty) > #{detail.lockedQty}-->
+    <!--        </foreach>-->
+    <!--        end-->
+    <!--        AS 'flag'-->
+    <!--        from wms_stock_detail a-->
+    <!--        where a.id in-->
+    <!--        <foreach collection="detailList" item="detail" open="(" separator="," close=")">-->
+    <!--            #{detail.id}-->
+    <!--        </foreach>) as ta);-->
+    <!--    </update>-->
+    <select id="findBySkuNoAndWarehouseId" resultType="cc.caozx.ware.entity.StockDetail">
+        select sd.id,
+               sd.sku_no,
+               sd.warehouse_id,
+               sd.batch_no,
+               sd.qty,
+               sd.locked_qty,
+               sd.price,
+               sd.create_time
+        from wms_stock_detail sd
+        where sd.qty - sd.locked_qty > 0
+          and sd.sku_no = #{skuNo}
+          and sd.warehouse_id = #{warehouseId}
+    </select>
+
+
+</mapper>

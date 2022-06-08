@@ -1,0 +1,10 @@
+server:
+  port: 9999
+
+spring:
+  application:
+    name: ware-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.220.128:8848

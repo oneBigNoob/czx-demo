@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.caozx.ware.mapper.StockCommonMapper">
+
+    <resultMap type="cc.caozx.ware.entity.StockCommon" id="stockCommonMap">
+        <result property="id" column="id"/>
+        <result property="skuNo" column="sku_no"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="qty" column="qty"/>
+        <result property="lockedQty" column="locked_qty"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <update id="lockCommonStock">
+        update wms_stock_common sc
+        set sc.locked_qty = sc.locked_qty + #{lockedQty}
+        where sc.warehouse_id = #{warehouseId}
+          and sc.sku_no = #{skuNo}
+          and sc.qty - sc.locked_qty >= #{lockedQty}
+    </update>
+
+
+</mapper>
